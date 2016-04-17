@@ -11,6 +11,9 @@ namespace RedisOnAzure.Web
     {
         protected void Application_Start()
         {
+            // You might think that setting up Redis would be done here but instead we run the initial configuration setup the first time
+            // redis gets used. For this sample app it's in the HomeController's Index action method.
+
             // Setup the Session state to use Redis and point to the appropriate Redis server
             var webConfigPath = Server.MapPath("/web.config");
             RedisSessionStateConfig.InitializeSessionStateConfiguration(webConfigPath);

@@ -209,10 +209,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Common\AppConst.cs" />
+    <Compile Include="App_Common\AppUserCacheExtensions.cs" />
     <Compile Include="App_Common\StringExtensionMethods.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\RedisConfiguration.cs" />
     <Compile Include="App_Start\RedisSessionStateConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />

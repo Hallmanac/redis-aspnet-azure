@@ -10,6 +10,9 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using RedisOnAzure.Web.Models;
 
+using RedisRepo.Src;
+
+
 namespace RedisOnAzure.Web.Controllers
 {
     [Authorize]
@@ -17,16 +20,30 @@ namespace RedisOnAzure.Web.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IAppCache _redisCache;
+        private readonly ICacheRepo<ApplicationUser> _appUserCache;
 
         public AccountController()
         {
+            CreateRedisCache();
+            _appUserCache = new CacheRepo<ApplicationUser>(_redisCache);
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
+            CreateRedisCache();
+            _appUserCache = new CacheRepo<ApplicationUser>(_redisCache);
         }
+
+
+        private void CreateRedisCache()
+        {
+            _redisCache = new RedisCache(RedisConfiguration.GetRedisConfig());
+        }
+
 
         public ApplicationSignInManager SignInManager
         {
@@ -79,6 +96,8 @@ namespace RedisOnAzure.Web.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    var usr = await UserManager.FindByNameAsync(model.Email);
+                    await _appUserCache.AddOrUpdateAsync(usr);
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -202,7 +221,8 @@ namespace RedisOnAzure.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
+                var user = (await _appUserCache.FindAsync("UserEmailIndex", model.Email)).FirstOrDefault();
+                user = user ?? await UserManager.FindByNameAsync(model.Email);
                 if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
