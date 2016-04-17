@@ -210,8 +210,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Common\AppConst.cs" />
-    <Compile Include="App_Common\AppUserCacheExtensions.cs" />
     <Compile Include="App_Common\StringExtensionMethods.cs" />
+    <Compile Include="App_Cache\UserCache.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />

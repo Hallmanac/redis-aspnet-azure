@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Mvc;
 
-using RedisOnAzure.Web.Models;
+using RedisOnAzure.Web.App_Cache;
 
 using RedisRepo.Src;
 
@@ -10,15 +10,15 @@ namespace RedisOnAzure.Web.Controllers
 {
     public class HomeController : Controller
     {
-        // This is an abstraction for interacting with a cache for a particular instance
-        private readonly ICacheRepo<ApplicationUser> _appUserCache;
+        // The UserCache is a local abstraction for interacting with the redis cache for an ApplicationUser type
+        private readonly UserCache _appUserCache;
 
 
         public HomeController()
         {
             // The CacheRepo needs an instance of IAppCache (from the RedisRepo library) in order to instantiate
             IAppCache redisCache = new RedisCache(RedisConfiguration.GetRedisConfig());
-            _appUserCache = new CacheRepo<ApplicationUser>(redisCache);
+            _appUserCache = new UserCache(redisCache);
         }
 
 
@@ -26,9 +26,9 @@ namespace RedisOnAzure.Web.Controllers
         {
             // Example of having the redis cache get accessed on the first request. If the redis cache server isn't running an exception will get
             // thrown here.
-            var user = await _appUserCache.FindAsync("UsernameIndex", User.Identity.Name);
+            var user = await _appUserCache.FindAsync(_appUserCache.UsernameIndex, User.Identity.Name);
             return View();
-        }   
+        }
 
 
         public ActionResult About()
