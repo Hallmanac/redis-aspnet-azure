@@ -1,55 +1,52 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+
+using RedisOnAzure.Web.App_Cache;
 using RedisOnAzure.Web.Models;
+
+using RedisRepo.Src;
+
 
 namespace RedisOnAzure.Web.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private readonly UserCache _appUserCache;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
+
         public AccountController()
         {
+            _appUserCache = new UserCache(CreateRedisCache());
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
+            _appUserCache = new UserCache(CreateRedisCache());
         }
+
 
         public ApplicationSignInManager SignInManager
         {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set 
-            { 
-                _signInManager = value; 
-            }
+            get { return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>(); }
+            private set { _signInManager = value; }
         }
 
         public ApplicationUserManager UserManager
         {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
+            get { return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>(); }
+            private set { _userManager = value; }
         }
 
         //
@@ -60,6 +57,7 @@ namespace RedisOnAzure.Web.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+
 
         //
         // POST: /Account/Login
@@ -75,21 +73,24 @@ namespace RedisOnAzure.Web.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
             switch (result)
             {
                 case SignInStatus.Success:
+                    var usr = await UserManager.FindByNameAsync(model.Email);
+                    await _appUserCache.AddOrUpdateAsync(usr);
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    return RedirectToAction("SendCode", new {ReturnUrl = returnUrl, model.RememberMe});
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
             }
         }
+
 
         //
         // GET: /Account/VerifyCode
@@ -101,8 +102,9 @@ namespace RedisOnAzure.Web.Controllers
             {
                 return View("Error");
             }
-            return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
+            return View(new VerifyCodeViewModel {Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe});
         }
+
 
         //
         // POST: /Account/VerifyCode
@@ -120,7 +122,7 @@ namespace RedisOnAzure.Web.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, model.RememberMe, model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -134,6 +136,7 @@ namespace RedisOnAzure.Web.Controllers
             }
         }
 
+
         //
         // GET: /Account/Register
         [AllowAnonymous]
@@ -141,6 +144,7 @@ namespace RedisOnAzure.Web.Controllers
         {
             return View();
         }
+
 
         //
         // POST: /Account/Register
@@ -151,12 +155,12 @@ namespace RedisOnAzure.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                    await SignInManager.SignInAsync(user, false, false);
+
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
@@ -172,6 +176,7 @@ namespace RedisOnAzure.Web.Controllers
             return View(model);
         }
 
+
         //
         // GET: /Account/ConfirmEmail
         [AllowAnonymous]
@@ -185,6 +190,7 @@ namespace RedisOnAzure.Web.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
+
         //
         // GET: /Account/ForgotPassword
         [AllowAnonymous]
@@ -192,6 +198,7 @@ namespace RedisOnAzure.Web.Controllers
         {
             return View();
         }
+
 
         //
         // POST: /Account/ForgotPassword
@@ -202,8 +209,9 @@ namespace RedisOnAzure.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                var user = (await _appUserCache.FindAsync(_appUserCache.EmailIndex, model.Email)).FirstOrDefault();
+                user = user ?? await UserManager.FindByNameAsync(model.Email);
+                if (user == null || !await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
@@ -221,6 +229,7 @@ namespace RedisOnAzure.Web.Controllers
             return View(model);
         }
 
+
         //
         // GET: /Account/ForgotPasswordConfirmation
         [AllowAnonymous]
@@ -229,6 +238,7 @@ namespace RedisOnAzure.Web.Controllers
             return View();
         }
 
+
         //
         // GET: /Account/ResetPassword
         [AllowAnonymous]
@@ -236,6 +246,7 @@ namespace RedisOnAzure.Web.Controllers
         {
             return code == null ? View("Error") : View();
         }
+
 
         //
         // POST: /Account/ResetPassword
@@ -263,6 +274,7 @@ namespace RedisOnAzure.Web.Controllers
             return View();
         }
 
+
         //
         // GET: /Account/ResetPasswordConfirmation
         [AllowAnonymous]
@@ -270,6 +282,7 @@ namespace RedisOnAzure.Web.Controllers
         {
             return View();
         }
+
 
         //
         // POST: /Account/ExternalLogin
@@ -279,8 +292,9 @@ namespace RedisOnAzure.Web.Controllers
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new {ReturnUrl = returnUrl}));
         }
+
 
         //
         // GET: /Account/SendCode
@@ -293,9 +307,10 @@ namespace RedisOnAzure.Web.Controllers
                 return View("Error");
             }
             var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId);
-            var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
-            return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
+            var factorOptions = userFactors.Select(purpose => new SelectListItem {Text = purpose, Value = purpose}).ToList();
+            return View(new SendCodeViewModel {Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe});
         }
+
 
         //
         // POST: /Account/SendCode
@@ -314,8 +329,9 @@ namespace RedisOnAzure.Web.Controllers
             {
                 return View("Error");
             }
-            return RedirectToAction("VerifyCode", new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
+            return RedirectToAction("VerifyCode", new {Provider = model.SelectedProvider, model.ReturnUrl, model.RememberMe});
         }
+
 
         //
         // GET: /Account/ExternalLoginCallback
@@ -329,7 +345,7 @@ namespace RedisOnAzure.Web.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, false);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -337,15 +353,17 @@ namespace RedisOnAzure.Web.Controllers
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
+                    return RedirectToAction("SendCode", new {ReturnUrl = returnUrl, RememberMe = false});
                 case SignInStatus.Failure:
                 default:
+
                     // If the user does not have an account, then prompt the user to create an account
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
-                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
+                    return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel {Email = loginInfo.Email});
             }
         }
+
 
         //
         // POST: /Account/ExternalLoginConfirmation
@@ -367,14 +385,14 @@ namespace RedisOnAzure.Web.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        await SignInManager.SignInAsync(user, false, false);
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -384,6 +402,7 @@ namespace RedisOnAzure.Web.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View(model);
         }
+
 
         //
         // POST: /Account/LogOff
@@ -395,6 +414,7 @@ namespace RedisOnAzure.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
         //
         // GET: /Account/ExternalLoginFailure
         [AllowAnonymous]
@@ -402,6 +422,14 @@ namespace RedisOnAzure.Web.Controllers
         {
             return View();
         }
+
+
+        private RedisCache CreateRedisCache()
+        {
+            var redisCache = new RedisCache(RedisConfiguration.GetRedisConfig());
+            return redisCache;
+        }
+
 
         protected override void Dispose(bool disposing)
         {
@@ -423,17 +451,14 @@ namespace RedisOnAzure.Web.Controllers
             base.Dispose(disposing);
         }
 
+
         #region Helpers
+
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
+        private IAuthenticationManager AuthenticationManager { get { return HttpContext.GetOwinContext().Authentication; } }
+
 
         private void AddErrors(IdentityResult result)
         {
@@ -442,6 +467,7 @@ namespace RedisOnAzure.Web.Controllers
                 ModelState.AddModelError("", error);
             }
         }
+
 
         private ActionResult RedirectToLocal(string returnUrl)
         {
@@ -452,12 +478,14 @@ namespace RedisOnAzure.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
         internal class ChallengeResult : HttpUnauthorizedResult
         {
             public ChallengeResult(string provider, string redirectUri)
                 : this(provider, redirectUri, null)
             {
             }
+
 
             public ChallengeResult(string provider, string redirectUri, string userId)
             {
@@ -466,13 +494,17 @@ namespace RedisOnAzure.Web.Controllers
                 UserId = userId;
             }
 
+
             public string LoginProvider { get; set; }
+
             public string RedirectUri { get; set; }
+
             public string UserId { get; set; }
+
 
             public override void ExecuteResult(ControllerContext context)
             {
-                var properties = new AuthenticationProperties { RedirectUri = RedirectUri };
+                var properties = new AuthenticationProperties {RedirectUri = RedirectUri};
                 if (UserId != null)
                 {
                     properties.Dictionary[XsrfKey] = UserId;
@@ -480,6 +512,7 @@ namespace RedisOnAzure.Web.Controllers
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
             }
         }
+
         #endregion
     }
 }
