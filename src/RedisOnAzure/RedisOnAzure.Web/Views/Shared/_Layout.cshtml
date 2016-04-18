@@ -5,12 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - My ASP.NET Application</title>
-    <script>
-        (function() {
-            alert("Called from head");
-        }());
-    </script>
-    @Styles.Render("~/Content/css")
+        @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 
     <script type="text/javascript">
@@ -61,8 +56,7 @@
         var Roa;
         (function (roa) {
             function _onReadyToAddVersion() {
-                Roa.version = '@typeof(MvcApplication).Assembly.GetName().Version.ToString()';
-                alert(Roa.version);
+                roa.version = '@typeof(MvcApplication).Assembly.GetName().Version.ToString()';
             }
             document.addEventListener('DOMContentLoaded', _onReadyToAddVersion());
         }(Roa || (Roa = {})));
