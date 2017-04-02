@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisWithAspNet4_6.Web", "RedisWithAspNet4_6.Web\RedisWithAspNet4_6.Web.csproj", "{ACA3D484-9BDB-46CD-882C-7114B3DF12A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisWithAspNet4_6.Tests.Web", "RedisWithAspNet4_6.Tests.Web\RedisWithAspNet4_6.Tests.Web.csproj", "{8D3834EB-C272-4F98-9263-9A26546140E2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{ACA3D484-9BDB-46CD-882C-7114B3DF12A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACA3D484-9BDB-46CD-882C-7114B3DF12A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACA3D484-9BDB-46CD-882C-7114B3DF12A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D3834EB-C272-4F98-9263-9A26546140E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D3834EB-C272-4F98-9263-9A26546140E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D3834EB-C272-4F98-9263-9A26546140E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D3834EB-C272-4F98-9263-9A26546140E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
