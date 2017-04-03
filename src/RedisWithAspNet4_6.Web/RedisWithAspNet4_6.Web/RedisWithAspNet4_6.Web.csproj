@@ -141,11 +141,21 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Commands\IMinionCommands.cs" />
+    <Compile Include="Commands\MinionCommands.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MinionsController.cs" />
+    <Compile Include="Funqy\CSharp\ExtendYourFunq.cs" />
+    <Compile Include="Funqy\CSharp\FunqFactory.cs" />
+    <Compile Include="Funqy\CSharp\FunqResult.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Minion.cs" />
+    <Compile Include="Models\MinionTraits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadServices\IMinionsReadService.cs" />
+    <Compile Include="ReadServices\MinionsReadService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
@@ -181,10 +191,13 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Minions\MinionsList.cshtml" />
+    <Content Include="Views\Minions\CreateMinion.cshtml" />
+    <Content Include="Views\Minions\EditMinion.cshtml" />
+    <Content Include="Views\Minions\MinionDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
