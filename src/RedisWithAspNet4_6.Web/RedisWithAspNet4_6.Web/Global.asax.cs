@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RedisWithAspNet4_6.Web.App_Core;
+using RedisWithAspNet4_6.Web.App_Start;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,6 +18,9 @@ namespace RedisWithAspNet4_6.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            //Setup Redis
+            AppConsts.RedisConfig = RedisStartupConfig.ConfigureRedis();
         }
     }
 }
