@@ -1,9 +1,11 @@
-﻿using RedisWithAspNet4_6.Web.Commands;
-using RedisWithAspNet4_6.Web.Models;
-using RedisWithAspNet4_6.Web.ReadServices;
+﻿using RedisWithAspNet4_6.Web.Models;
+
 using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
+
+using RedisWithAspNet4_6.Web.App_Core.Commands;
+using RedisWithAspNet4_6.Web.App_Core.ReadServices;
+
 
 namespace RedisWithAspNet4_6.Web.Controllers
 {

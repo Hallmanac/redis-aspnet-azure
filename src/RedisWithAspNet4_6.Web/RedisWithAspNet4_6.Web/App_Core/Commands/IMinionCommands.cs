@@ -1,8 +1,10 @@
 ﻿using System;
+
 using Funqy.CSharp;
 using RedisWithAspNet4_6.Web.Models;
 
-namespace RedisWithAspNet4_6.Web.Commands
+
+namespace RedisWithAspNet4_6.Web.App_Core.Commands
 {
     public interface IMinionCommands
     {
