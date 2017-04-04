@@ -1,13 +1,15 @@
-﻿using Funqy.CSharp;
-using RedisWithAspNet4_6.Web.Models;
-using RedisWithAspNet4_6.Web.ReadServices;
-using System;
+﻿using System;
 
-namespace RedisWithAspNet4_6.Web.Commands
+using Funqy.CSharp;
+using RedisWithAspNet4_6.Web.App_Core.ReadServices;
+using RedisWithAspNet4_6.Web.Models;
+
+
+namespace RedisWithAspNet4_6.Web.App_Core.Commands
 {
     public class MinionCommands : IMinionCommands
     {
-        public readonly IMinionsReadService _minionReadSvc;
+        private readonly IMinionsReadService _minionReadSvc;
 
         public MinionCommands(IMinionsReadService minionsReadSvc)
         {

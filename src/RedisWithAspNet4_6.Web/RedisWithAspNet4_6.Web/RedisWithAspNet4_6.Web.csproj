@@ -120,21 +120,21 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Commands\IMinionCommands.cs" />
-    <Compile Include="Commands\MinionCommands.cs" />
+    <Compile Include="App_Core\Commands\IMinionCommands.cs" />
+    <Compile Include="App_Core\Commands\MinionCommands.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MinionsController.cs" />
-    <Compile Include="Funqy\CSharp\ExtendYourFunq.cs" />
-    <Compile Include="Funqy\CSharp\FunqFactory.cs" />
-    <Compile Include="Funqy\CSharp\FunqResult.cs" />
+    <Compile Include="App_Core\Funqy\CSharp\ExtendYourFunq.cs" />
+    <Compile Include="App_Core\Funqy\CSharp\FunqFactory.cs" />
+    <Compile Include="App_Core\Funqy\CSharp\FunqResult.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Minion.cs" />
     <Compile Include="Models\MinionTraits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadServices\IMinionsReadService.cs" />
-    <Compile Include="ReadServices\MinionsReadService.cs" />
+    <Compile Include="App_Core\ReadServices\IMinionsReadService.cs" />
+    <Compile Include="App_Core\ReadServices\MinionsReadService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />

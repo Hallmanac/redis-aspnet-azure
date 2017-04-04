@@ -1,12 +1,11 @@
-﻿using Funqy.CSharp;
-using RedisWithAspNet4_6.Web.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace RedisWithAspNet4_6.Web.ReadServices
+using RedisWithAspNet4_6.Web.Models;
+
+
+namespace RedisWithAspNet4_6.Web.App_Core.ReadServices
 {
     public class MinionsReadService : IMinionsReadService
     {
