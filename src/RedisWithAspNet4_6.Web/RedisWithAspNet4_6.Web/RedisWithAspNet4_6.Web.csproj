@@ -118,6 +118,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Core\AppConsts.cs" />
+    <Compile Include="App_Core\RedisServices\IAppCache.cs" />
+    <Compile Include="App_Core\RedisServices\RedisAppCache.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RedisStartupConfig.cs" />
