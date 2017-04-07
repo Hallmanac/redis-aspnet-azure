@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
 {
-    public class RedisAppCache
+    public class RedisAppCache : IAppCache
     {
         private const string AllPartitionsCacheKey = "AllPartitionNames";
         private const string TimeoutKeySuffix = "TimeoutItems";
