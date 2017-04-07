@@ -15,7 +15,7 @@ namespace RedisWithAspNet4_6.Web.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "What's it all about...";
 
             return View();
         }
