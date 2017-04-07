@@ -5,32 +5,41 @@ using System.Web.Mvc;
 
 using RedisWithAspNet4_6.Web.App_Core.Commands;
 using RedisWithAspNet4_6.Web.App_Core.ReadServices;
-
+using System.Threading.Tasks;
+using RedisWithAspNet4_6.Web.App_Core.RedisServices;
+using RedisWithAspNet4_6.Web.App_Core;
 
 namespace RedisWithAspNet4_6.Web.Controllers
 {
+    /*
+     * This is a basic example class. There are obviously some missing "best-practices" when it comes to error handling and validation. Please understand
+     * that this is only intended to provide a sample pattern of using Redis and not an example of AspNet MVC best practice patterns.
+     */
+    
     public class MinionsController : Controller
     {
         private readonly IMinionsReadService _minionsReadSvc;
         private readonly IMinionCommands _minionCommands;
+        private readonly IAppCache _appCache;
 
         public MinionsController()
         {
-            _minionsReadSvc = new MinionsReadService();
-            _minionCommands = new MinionCommands(_minionsReadSvc);
+            _appCache = new RedisAppCache(AppConsts.RedisConfig);
+            _minionsReadSvc = new MinionsReadService(_appCache);
+            _minionCommands = new MinionCommands(_minionsReadSvc, _appCache);
         }
 
         // GET: Minions
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var allMinions = _minionsReadSvc.GetAllMinions();
+            var allMinions = await _minionsReadSvc.GetAllMinionsAsync();
             return View("MinionsList", allMinions);
         }
 
         // GET: Minions/Details/5
-        public ActionResult Details(Guid id)
+        public async Task<ActionResult> Details(Guid id)
         {
-            var minion = _minionsReadSvc.GetMinion(id);
+            var minion = await _minionsReadSvc.GetMinionAsync(id);
             return View("MinionDetails", minion);
         }
 
@@ -42,14 +51,13 @@ namespace RedisWithAspNet4_6.Web.Controllers
 
         // POST: Minions/Create
         [HttpPost]
-        public ActionResult Create(Minion minion)
+        public async Task<ActionResult> Create(Minion minion)
         {
             try
             {
-                var result = _minionCommands.CreateMinion(minion);
+                var result = await _minionCommands.CreateMinionAsync(minion);
                 if (result.IsFailure)
                 {
-                    //TODO: Add error messages
                     return View("CreateMinion");
                 }
                 
@@ -62,20 +70,19 @@ namespace RedisWithAspNet4_6.Web.Controllers
         }
 
         // GET: Minions/Edit/5
-        public ActionResult Edit(Guid id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            var minion = _minionsReadSvc.GetMinion(id);
+            var minion = await _minionsReadSvc.GetMinionAsync(id);
             return View("EditMinion", minion);
         }
 
         // POST: Minions/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, Minion minion)
+        public async Task<ActionResult> Edit(int id, Minion minion)
         {
             try
             {
-                // TODO: Add update logic here
-                var result = _minionCommands.UpdateMinion(minion);
+                var result = await _minionCommands.UpdateMinionAsync(minion);
                 if (result.IsFailure)
                 {
                     return View("EditMinion");
@@ -97,11 +104,11 @@ namespace RedisWithAspNet4_6.Web.Controllers
 
         // POST: Minions/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public async Task<ActionResult> Delete(Guid id, FormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
+                await _minionCommands.DeleteMinionAsync(id);
 
                 return RedirectToAction("Index");
             }
