@@ -55,6 +55,7 @@ namespace RedisWithAspNet4_6.Web.Controllers
         {
             try
             {
+                minion.Id = Guid.NewGuid();
                 var result = await _minionCommands.CreateMinionAsync(minion);
                 if (result.IsFailure)
                 {
@@ -78,7 +79,7 @@ namespace RedisWithAspNet4_6.Web.Controllers
 
         // POST: Minions/Edit/5
         [HttpPost]
-        public async Task<ActionResult> Edit(int id, Minion minion)
+        public async Task<ActionResult> Edit(Guid id, Minion minion)
         {
             try
             {
