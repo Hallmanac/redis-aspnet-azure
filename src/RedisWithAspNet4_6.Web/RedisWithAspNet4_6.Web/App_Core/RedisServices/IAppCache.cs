@@ -137,6 +137,15 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
         /// </param>
 		Task AddOrUpdateAsync(string key, object value, TimeSpan? timeout, string partitionName = "");
 
+        
+        /// <summary>
+        /// Adds or updates a partition (a.k.a. hash type) in the redis cache in on operation instead of looping through each individual hash field and hash value.
+        /// </summary>
+        /// <param name="partitionName">Name of partition (i.e. redis key for the hash type)</param>
+        /// <param name="collectionValues">Dictionary of key value pairs that will be stored as hash field/value pairs in Redis</param>
+        /// <param name="timeout">Optional timeout applied to items in the given set of collection values passed in</param>
+        Task AddCollectionToPartitionAsync<T>(string partitionName, Dictionary<string, T> collectionValues, TimeSpan? timeout = null) where T : class;
+
 
         /// <summary>
         /// Removes an item from the cache

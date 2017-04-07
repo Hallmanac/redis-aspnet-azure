@@ -281,6 +281,41 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
 
 
         /// <summary>
+        /// Adds or updates a partition (a.k.a. hash type) in the redis cache in on operation instead of looping through each individual hash field and hash value.
+        /// </summary>
+        /// <param name="partitionName">Name of partition (i.e. redis key for the hash type)</param>
+        /// <param name="collectionValues">Dictionary of key value pairs that will be stored as hash field/value pairs in Redis</param>
+        /// <param name="timeout">Optional timeout applied to items in the given set of collection values passed in</param>
+        public async Task AddCollectionToPartitionAsync<T>(string partitionName, Dictionary<string, T> collectionValues, TimeSpan? timeout = null) where T : class
+        {
+            var partitionKey = ComposePartitionKey(partitionName);
+            var partitionHash = await _redisDatabase.HashGetAllAsync(partitionKey).ConfigureAwait(false);
+            var partitionDict = partitionHash.ToDictionary(k => k.Name.ToString(), k => k.Value.ToString());
+            
+            foreach (var item in collectionValues)
+            {
+                var serializedValue = JsonConvert.SerializeObject(item.Value);
+                if (partitionDict.ContainsKey(item.Key))
+                {
+                    partitionDict[item.Key] = serializedValue;
+                }
+                else
+                {
+                    partitionDict.Add(item.Key, JsonConvert.SerializeObject(item.Value));
+                }
+                if(timeout != null)
+                {
+                    await AddTimeoutToPartitionAsync(partitionName, item.Key, timeout).ConfigureAwait(false);
+                }
+            }
+
+            var newHash = partitionDict.Select(pitem => new HashEntry(pitem.Key, pitem.Value)).ToArray();
+            await _redisDatabase.SetAddAsync(AllPartitionsCacheKey, partitionName).ConfigureAwait(false);
+            await _redisDatabase.HashSetAsync(partitionKey, newHash).ConfigureAwait(false);
+        }
+
+
+        /// <summary>
         /// Removes an item from the cache
         /// </summary>
         /// <param name="key">Cache key</param>
