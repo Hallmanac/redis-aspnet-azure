@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace RedisWithAspNet4_6.Web.Models
 {
@@ -12,6 +13,7 @@ namespace RedisWithAspNet4_6.Web.Models
 
         public MinionTraits Traits { get; set; }
 
+        [Display(Name = "Movie Moments")]
         public string MovieMoments { get; set; }
     }
 }
