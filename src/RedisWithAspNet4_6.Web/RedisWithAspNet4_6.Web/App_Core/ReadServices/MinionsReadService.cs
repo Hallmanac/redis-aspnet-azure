@@ -3,30 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 
 using RedisWithAspNet4_6.Web.Models;
-
+using RedisWithAspNet4_6.Web.App_Core.RedisServices;
+using System.Threading.Tasks;
 
 namespace RedisWithAspNet4_6.Web.App_Core.ReadServices
 {
     public class MinionsReadService : IMinionsReadService
     {
         private List<Minion> _allMinions;
+        private readonly IAppCache _appCache;
 
-        public List<Minion> GetAllMinions()
+        public MinionsReadService(IAppCache appCache)
         {
-            return _allMinions = GenerateMinions();
+            _appCache = appCache;
         }
 
-        public Minion GetMinion(Guid id)
+        public async Task<List<Minion>> GetAllMinionsAsync()
+        {
+            _allMinions = await _appCache.GetAllItemsInPartitionAsync<Minion>(typeof(Minion).Name).ConfigureAwait(false);
+            if (_allMinions != null && _allMinions.Count > 0)
+                return _allMinions.OrderBy(m => m.Name).ToList();
+            _allMinions = await GenerateMinionsAsync().ConfigureAwait(false);
+            return _allMinions.OrderBy(m => m.Name).ToList();
+        }
+
+        public async Task<Minion> GetMinionAsync(Guid id)
         {
             if(_allMinions == null)
             {
-                _allMinions = GenerateMinions();
+                _allMinions = await GetAllMinionsAsync().ConfigureAwait(false);
             }
             return _allMinions.FirstOrDefault(m => m.Id == id);
         }
 
-        private List<Minion> GenerateMinions()
+        private async Task<List<Minion>> GenerateMinionsAsync()
         {
+            var cachedMinions = await _appCache.GetAllItemsInPartitionAsync<Minion>(typeof(Minion).Name).ConfigureAwait(false);
+            if (cachedMinions != null && cachedMinions.Count > 0)
+                return cachedMinions;
+
             var minions = new List<Minion>
             {
                 new Minion
@@ -62,6 +77,12 @@ namespace RedisWithAspNet4_6.Web.App_Core.ReadServices
                     }
                 }
             };
+
+            // Add the minions to the cache
+            foreach (var minion in minions)
+            {
+                await _appCache.AddOrUpdateAsync(minion.Id.ToString(), minion, null, typeof(Minion).Name).ConfigureAwait(false);
+            }
 
             return minions;
         }
