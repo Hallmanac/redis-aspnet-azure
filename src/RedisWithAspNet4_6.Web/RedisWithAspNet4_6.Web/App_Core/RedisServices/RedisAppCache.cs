@@ -1,5 +1,11 @@
-﻿using Newtonsoft.Json;
-using StackExchange.Redis;
+﻿// This is to help clarify which StackExchange.Redis library you want to use in your code
+// Go into the References of the project | Select the StackExchange.Redis DLL  | Go into the Properties and rename the value of "Aliases" to "Redis" | Then add the code below
+// This could also be overcome by removing the NON strong-named library from your NuGet packages (i.e. the one which now has the Alias)
+extern alias Redis;
+
+using Newtonsoft.Json;
+using Redis::StackExchange.Redis;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +14,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using RedisDb = StackExchange.Redis;
+
 namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
 {
     public class RedisAppCache : IAppCache
@@ -15,7 +23,7 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
         private const string AllPartitionsCacheKey = "AllPartitionNames";
         private const string TimeoutKeySuffix = "TimeoutItems";
         private readonly RedisConfig _redisConfig;
-        private readonly IDatabase _redisDatabase;
+        private readonly RedisDb.IDatabase _redisDatabase;
 
         /// <summary>
         /// Constructs a Redis IAppCache implementation using the given Redis configuration object
@@ -91,7 +99,7 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
         {
             if (string.IsNullOrEmpty(key))
                 return null;
-            RedisValue cacheValue;
+            RedisDb.RedisValue cacheValue;
             if (string.IsNullOrEmpty(partitionName))
             {
                 cacheValue = await _redisDatabase.StringGetAsync(key).ConfigureAwait(false);
@@ -152,7 +160,7 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
         {
             if (string.IsNullOrEmpty(key))
                 return null;
-            RedisValue cachedValue;
+            RedisDb.RedisValue cachedValue;
             if (string.IsNullOrEmpty(partitionName))
             {
                 cachedValue = await _redisDatabase.StringGetAsync(key).ConfigureAwait(false);
@@ -309,7 +317,7 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
                 }
             }
 
-            var newHash = partitionDict.Select(pitem => new HashEntry(pitem.Key, pitem.Value)).ToArray();
+            var newHash = partitionDict.Select(pitem => new RedisDb.HashEntry(pitem.Key, pitem.Value)).ToArray();
             await _redisDatabase.SetAddAsync(AllPartitionsCacheKey, partitionName).ConfigureAwait(false);
             await _redisDatabase.HashSetAsync(partitionKey, newHash).ConfigureAwait(false);
         }
@@ -372,7 +380,7 @@ namespace RedisWithAspNet4_6.Web.App_Core.RedisServices
             var partitionTimeoutItems = await _redisDatabase.HashGetAllAsync(partitionTimeoutCacheKey).ConfigureAwait(false);
             if (partitionTimeoutItems.Length < 1)
                 return;
-            var expiredKeys = new List<RedisValue>();
+            var expiredKeys = new List<RedisDb.RedisValue>();
             foreach (var hashEntry in partitionTimeoutItems)
             {
                 var expirationDate = JsonConvert.DeserializeObject<DateTimeOffset>(hashEntry.Value);
