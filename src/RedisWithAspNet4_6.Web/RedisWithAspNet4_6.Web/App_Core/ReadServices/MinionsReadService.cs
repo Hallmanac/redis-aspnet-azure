@@ -75,14 +75,27 @@ namespace RedisWithAspNet4_6.Web.App_Core.ReadServices
                         Loves = "Playing & Laughing",
                         Hates = "Being bullied by other minions"
                     }
+                },
+                new Minion
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Jorge",
+                    Nickname = "Xerox",
+                    MovieMoments = "He was fooling around with Jerry & Stuart on the photocopy machine printing images of his fat and round bottom. It was also at that moment that Gru's aircraft grew back to its original size after being shrunk by Vector.",
+                    Traits = new MinionTraits
+                    {
+                        EyesQuantity = 2,
+                        HairStyle = "Standing straigh up",
+                        BodyType = "Fat",
+                        Height = 96,
+                        Loves = "Making photo copies of his butt",
+                        Hates = "A broken copy machine"
+                    }
                 }
             };
 
-            // Add the minions to the cache
-            foreach (var minion in minions)
-            {
-                await _appCache.AddOrUpdateAsync(minion.Id.ToString(), minion, null, typeof(Minion).Name).ConfigureAwait(false);
-            }
+            var minionCacheValues = minions.ToDictionary(m => m.Id.ToString(), m => m);
+            await _appCache.AddCollectionToPartitionAsync(typeof(Minion).Name, minionCacheValues).ConfigureAwait(false);
 
             return minions;
         }
