@@ -3,27 +3,31 @@
 using Funqy.CSharp;
 using RedisWithAspNet4_6.Web.App_Core.ReadServices;
 using RedisWithAspNet4_6.Web.Models;
-
+using System.Threading.Tasks;
+using RedisWithAspNet4_6.Web.App_Core.RedisServices;
 
 namespace RedisWithAspNet4_6.Web.App_Core.Commands
 {
     public class MinionCommands : IMinionCommands
     {
         private readonly IMinionsReadService _minionReadSvc;
+        private readonly IAppCache _appCache;
 
-        public MinionCommands(IMinionsReadService minionsReadSvc)
+        public MinionCommands(IMinionsReadService minionsReadSvc, IAppCache appCache)
         {
+            _appCache = appCache;
             _minionReadSvc = minionsReadSvc;
         }
 
-        public FunqResult<Minion> CreateMinion(Minion minion)
+        public async Task<FunqResult<Minion>> CreateMinionAsync(Minion minion)
         {
+            await _appCache.AddOrUpdateAsync(minion.Id.ToString(), minion, null, typeof(Minion).Name).ConfigureAwait(false);
             return FunqFactory.KeepGroovin(minion, "Succesfully added minion");
         }
 
-        public FunqResult<Minion> UpdateMinion(Minion minion)
+        public async Task<FunqResult<Minion>> UpdateMinionAsync(Minion minion)
         {
-            var dbMinion = _minionReadSvc.GetMinion(minion.Id);
+            var dbMinion = await _minionReadSvc.GetMinionAsync(minion.Id).ConfigureAwait(false);
             if(dbMinion == null)
             {
                 return FunqFactory.Fail("Unable to find existing minion to update", (Minion)null);
@@ -34,14 +38,14 @@ namespace RedisWithAspNet4_6.Web.App_Core.Commands
             dbMinion.Nickname = minion.Nickname;
             dbMinion.Traits = minion.Traits;
 
-            //TODO: Save updated minion to a data store
-            return FunqFactory.KeepGroovin<Minion>(dbMinion, "Successfully updated minion");
+            await _appCache.AddOrUpdateAsync(dbMinion.Id.ToString(), dbMinion, null, typeof(Minion).Name).ConfigureAwait(false);
+            return FunqFactory.KeepGroovin(dbMinion, "Successfully updated minion");
         }
 
 
-        public FunqResult DeleteMinion(Guid minionId)
+        public async Task<FunqResult> DeleteMinionAsync(Guid minionId)
         {
-            //TODO: Delete the minion from the datastore
+            await _appCache.RemoveAsync(minionId.ToString(), typeof(Minion).Name);
             return FunqFactory.KeepGroovin("Deleted the minion");
         }
     }
