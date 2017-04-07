@@ -15,7 +15,7 @@ namespace RedisWithAspNet4_6.Web.App_Start
             switch(siteEnvironment)
             {
                 case "Local":
-                    redisDatabase = 2;
+                    redisDatabase = 0;
                     break;
                 case "Dev":
                     redisDatabase = 0;
