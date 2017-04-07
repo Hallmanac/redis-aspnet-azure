@@ -126,6 +126,7 @@
     <Compile Include="App_Core\Extensions\StringExtensions.cs" />
     <Compile Include="App_Core\RedisServices\IAppCache.cs" />
     <Compile Include="App_Core\RedisServices\RedisAppCache.cs" />
+    <Compile Include="App_Core\RedisServices\RedisSessionStateConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RedisStartupConfig.cs" />
