@@ -1,0 +1,99 @@
+﻿@model RedisWithAspNet4_6.Web.Models.Minion
+
+@{
+    ViewBag.Title = "MinionDetails";
+}
+
+<h2>MinionDetails</h2>
+
+<div>
+    <h4>Minion</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <!-- NAME -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <!-- NICKNAME -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Nickname)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Nickname)
+        </dd>
+
+        <!-- EYES QUANTITY -->
+        <dt>
+            Eyes Quantity
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Traits.EyesQuantity)
+        </dd>
+
+        <!-- BODY TYPE -->
+        <dt>
+            Body Type
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Traits.BodyType)
+        </dd>
+
+        <!-- HAIR STYLE -->
+        <dt>
+            Hair Style
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Traits.HairStyle)
+        </dd>
+
+        <!-- HEIGHT -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Traits.Height)
+        </dt>
+
+        <dd>
+            <span>@Html.DisplayFor(model => model.Traits.Height)</span><span>cm</span>
+        </dd>
+
+        <!-- HATES -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Traits.Hates)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Traits.Hates)
+        </dd>
+
+        <!-- LOVES -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Traits.Loves)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Traits.Loves)
+        </dd>
+
+        <!-- MOVIE MOMENTS -->
+        <dt>
+            Movie Moments
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MovieMoments)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

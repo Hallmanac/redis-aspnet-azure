@@ -1,0 +1,114 @@
+﻿@model RedisWithAspNet4_6.Web.Models.Minion
+
+@{
+    ViewBag.Title = "Edit Minion";
+}
+
+<h2>Edit Minion</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <!-- NAME -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- NICKNAME -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Nickname, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Nickname, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Nickname, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- EYES QUANTITY -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.EyesQuantity, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.EyesQuantity, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.EyesQuantity, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- BODY TYPE -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.BodyType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.BodyType, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.BodyType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- HAIR STYLE -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.HairStyle, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.HairStyle, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.HairStyle, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- HEIGHT -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.Height, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.Height, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.Height, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- HATES -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.Hates, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.Hates, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.Hates, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- LOVES -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.Traits.Loves, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Traits.Loves, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Traits.Loves, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- MOVIE MOMENTS -->
+        <div class="form-group">
+            @Html.LabelFor(model => model.MovieMoments, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.MovieMoments, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.MovieMoments, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
